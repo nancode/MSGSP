@@ -10,12 +10,8 @@ public class MSGSP {
 
     MSGSP(ArrayList<List> sequenceCollection, HashMap<Integer, Float> parameters, float sdc_value){
          this.sequenceCollection = sequenceCollection;
-         this.parameters = sortByValue(parameters);
+         this.parameters = sortByValue(parameters); //sorted MIS values
          this.sdc_value = sdc_value;
-
-         //Sorting MIS values
-        // parameters = sortByValue(parameters);
-        // printHashMap(parameters);
 
         //Finding 1-itemsets
         List<Integer> itemSetCollection = find_1_ItemSet(sequenceCollection);
@@ -30,6 +26,11 @@ public class MSGSP {
         findF1(l, supportCount);
     }
 
+    /**
+     * Finding all frequent 1-itemsets from L
+     * @param l
+     * @param supportCount
+     */
     private void findF1(List<Integer> l, Map<Integer, Integer> supportCount) {
         List<Integer> f1 = new ArrayList<>();
         for(Integer i: l){
@@ -37,7 +38,6 @@ public class MSGSP {
             if(parameters.get(i)<=support)
                 f1.add(i);
         }
-        Collections.sort(f1);
         System.out.println("The number of 1 sequential patterns is "+f1.size());
         for(Integer i: f1){
             System.out.println("Pattern: <{"+i+"}>: Count = "+supportCount.get(i));
@@ -45,6 +45,11 @@ public class MSGSP {
 
     }
 
+    /**
+     * Getting the L set for init-pass()
+     * @param supportCount
+     * @return
+     */
     private List<Integer> findLSet(Map<Integer, Integer> supportCount) {
         List<Integer> theLSet = new ArrayList<>();
         Integer item1 = 0;
@@ -71,6 +76,11 @@ public class MSGSP {
         return theLSet;
     }
 
+    /**
+     * Finding all possible unique items in the itemsets
+     * @param sequenceCollection
+     * @return
+     */
     private List<Integer> find_1_ItemSet(ArrayList<List> sequenceCollection) {
         List<Integer> newItemSet = new ArrayList<>();
 
@@ -91,6 +101,12 @@ public class MSGSP {
 
     }
 
+    /**
+     * Finding the support count for a single item itemset
+     * @param itemSetCollection
+     * @param sequenceCollection
+     * @return
+     */
     private Map<Integer, Integer> findSupportCount(List<Integer> itemSetCollection, ArrayList<List> sequenceCollection) {
         HashMap<Integer, Integer> supportCount = new HashMap<>();
             for(Integer newItem: itemSetCollection){
@@ -122,6 +138,7 @@ public class MSGSP {
 
         }
 
+        //To sort the map by key
         Map<Integer, Integer> map = new TreeMap<>(supportCount);
 
       /*  for (Integer itemSet:map.keySet()) {
@@ -131,6 +148,11 @@ public class MSGSP {
 
     }
 
+    /**
+     * Sorting parameters by the value
+     * @param parameters
+     * @return sorted HashMap of parameters
+     */
     private HashMap<Integer,Float> sortByValue(HashMap<Integer, Float> parameters) {
         HashMap<Integer, Float> sortedParameters = parameters
                 .entrySet()
