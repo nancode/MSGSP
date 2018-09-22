@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
+    private static float sdc_value;
 	public static void main(String args[]){
 		File sequenceFile = new File("./src/main/resources/inputdata/sequences.txt");
 		String parameterFilePath = "./src/main/resources/inputdata/parameters.txt";
@@ -19,7 +20,10 @@ public class Main {
 		ArrayList<List> sequenceCollection = getSequenceCollection(sequenceFile);
 		
 		HashMap<Integer,Float> mis_values = readParamsFile(parameterFilePath);
-		printHashMap(mis_values);
+		//printHashMap(mis_values);
+
+		MSGSP msgsp = new MSGSP(sequenceCollection,mis_values,sdc_value);
+
 		
 
 	}
@@ -59,7 +63,7 @@ public class Main {
 			sequenceCollection.add(sequence);
 		}
 
-		for (List<List> sequence:
+		/*for (List<List> sequence:
 			sequenceCollection) {
 			System.out.println("Sequence:");
 			for (List<Integer> itemset:
@@ -72,7 +76,7 @@ public class Main {
 				System.out.println();
 			}
 
-		}
+		}*/
 		sc.close();
 		return sequenceCollection;
 	}
@@ -87,7 +91,7 @@ public class Main {
 		
 		//Map containing all the MIS values given in the parameters.txt file.
 		HashMap<Integer, Float> mis_values = new HashMap<Integer, Float>();
-		float sdc_value;
+		//float sdc_value;
 		try
 		{
 			//Using FileInputStream in the draft, could be changed later. 
@@ -115,7 +119,7 @@ public class Main {
 					if (m_sdc.find())
 					{
 					sdc_value = Float.valueOf(m_sdc.group(1));
-					System.out.println("Printing SDC Value : " + sdc_value);
+					//System.out.println("Printing SDC Value : " + sdc_value);
 					}
 				}
 			}
