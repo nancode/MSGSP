@@ -16,14 +16,38 @@ public class MSGSP {
         //Finding 1-itemsets
         List<Integer> itemSetCollection = find_1_ItemSet(sequenceCollection);
 
+
         //Get support count for each itemset
-        Map<Integer, Integer> supportCount = findSupportCount(itemSetCollection, sequenceCollection);
+        Map<Integer, Integer> supportCount = find_1_itemsetSupport(itemSetCollection, sequenceCollection);
 
         //Finding L
         List<Integer> l = findLSet(supportCount);
 
         //Finding F1
         findF1(l, supportCount);
+
+
+        //Example to check finding support count of a list of candidate sequences
+        //Candidate sequence <{30}{40,70}>
+        List<Integer> tmp1 = new ArrayList<>();
+        tmp1.add(30);
+        List<Integer> tmp2 = new ArrayList<>();
+        tmp2.add(40);
+        tmp2.add(70);
+        List<List> itemSet = new ArrayList<>();
+        itemSet.add(tmp1);
+        itemSet.add(tmp2);
+
+        //Candidate sequence <{10, 20}>
+        List<Integer> tmp3 = new ArrayList<>();
+        tmp3.add(10);
+        tmp3.add(20);
+        List<List> itemSet2 = new ArrayList<>();
+        itemSet2.add(tmp3);
+        ArrayList<List<List>> candidateSequenceList = new ArrayList<>();
+        candidateSequenceList.add(itemSet);
+        candidateSequenceList.add(itemSet2);
+        findSupportCount(candidateSequenceList,sequenceCollection);
     }
 
     /**
@@ -107,7 +131,7 @@ public class MSGSP {
      * @param sequenceCollection
      * @return
      */
-    private Map<Integer, Integer> findSupportCount(List<Integer> itemSetCollection, ArrayList<List> sequenceCollection) {
+    private Map<Integer, Integer> find_1_itemsetSupport(List<Integer> itemSetCollection, ArrayList<List> sequenceCollection) {
         HashMap<Integer, Integer> supportCount = new HashMap<>();
             for(Integer newItem: itemSetCollection){
                 for (List<List> sequence:
@@ -148,6 +172,47 @@ public class MSGSP {
 
     }
 
+
+    /**
+     * Finding the support count of all the itemsets in a candidate sequence list
+     * @param candidateSequenceList
+     * @param sequenceCollection
+     * @return
+     */
+    private HashMap<List<List>,Integer> findSupportCount(ArrayList<List<List>> candidateSequenceList, ArrayList<List> sequenceCollection) {
+        HashMap<List<List>, Integer> supportCount = new HashMap<>();
+
+        for(List<List> candidateSequence: candidateSequenceList) {
+            for (List<List> sequence : sequenceCollection) {
+                int i = 0;
+                //List<Integer> candidateItem =
+                for (List<Integer> itemset : sequence) {
+                    if (i < candidateSequence.size()) {
+                       // System.out.println(itemset + "---" + candidateSequence.get(i));
+                        if (itemset.containsAll(candidateSequence.get(i))) {
+                            i++;
+                        }
+                    }
+                }
+               // System.out.println("i == " + i);
+                if (i == candidateSequence.size()) {
+                   // System.out.println("Adding an item");
+                    if (supportCount.containsKey(candidateSequence)) {
+                        supportCount.put(candidateSequence, supportCount.get(candidateSequence) + 1);
+                    } else {
+                        supportCount.put(candidateSequence, 1);
+                    }
+                }
+            }
+        }
+
+        for (List<List> itemSet:supportCount.keySet()) {
+            System.out.println(itemSet+" -- "+supportCount.get(itemSet));
+        }
+        return supportCount;
+
+    }
+
     /**
      * Sorting parameters by the value
      * @param parameters
@@ -164,6 +229,8 @@ public class MSGSP {
 
         return sortedParameters;
     }
+
+
 
 
 
