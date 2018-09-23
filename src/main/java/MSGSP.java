@@ -1,3 +1,6 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static java.util.Map.Entry.comparingByValue;
@@ -23,48 +26,61 @@ public class MSGSP {
         //Finding L
         List<Integer> l = findLSet(supportCount);
 
-        //Finding F1
-        findF1(l, supportCount);
+        try {
+            PrintWriter writer = new PrintWriter("./output/result.txt","UTF-8");
+
+            //Finding F1
+            findF1(l, supportCount, writer);
+
+            //Example to check finding support count of a list of candidate sequences
+            //Candidate sequence <{30}{40,70}>
+            List<Integer> tmp1 = new ArrayList<>();
+            tmp1.add(30);
+            List<Integer> tmp2 = new ArrayList<>();
+            tmp2.add(40);
+            tmp2.add(70);
+            List<List> itemSet = new ArrayList<>();
+            itemSet.add(tmp1);
+            itemSet.add(tmp2);
+
+            //Candidate sequence <{10, 20}>
+            List<Integer> tmp3 = new ArrayList<>();
+            tmp3.add(10);
+            tmp3.add(20);
+            List<List> itemSet2 = new ArrayList<>();
+            itemSet2.add(tmp3);
+            ArrayList<List<List>> candidateSequenceList = new ArrayList<>();
+            candidateSequenceList.add(itemSet);
+            candidateSequenceList.add(itemSet2);
+            findSupportCount(candidateSequenceList,sequenceCollection);
 
 
-        //Example to check finding support count of a list of candidate sequences
-        //Candidate sequence <{30}{40,70}>
-        List<Integer> tmp1 = new ArrayList<>();
-        tmp1.add(30);
-        List<Integer> tmp2 = new ArrayList<>();
-        tmp2.add(40);
-        tmp2.add(70);
-        List<List> itemSet = new ArrayList<>();
-        itemSet.add(tmp1);
-        itemSet.add(tmp2);
 
-        //Candidate sequence <{10, 20}>
-        List<Integer> tmp3 = new ArrayList<>();
-        tmp3.add(10);
-        tmp3.add(20);
-        List<List> itemSet2 = new ArrayList<>();
-        itemSet2.add(tmp3);
-        ArrayList<List<List>> candidateSequenceList = new ArrayList<>();
-        candidateSequenceList.add(itemSet);
-        candidateSequenceList.add(itemSet2);
-        findSupportCount(candidateSequenceList,sequenceCollection);
+            writer.close();
+
+
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
      * Finding all frequent 1-itemsets from L
      * @param l
      * @param supportCount
+     * @param writer
      */
-    private void findF1(List<Integer> l, Map<Integer, Integer> supportCount) {
+    private void findF1(List<Integer> l, Map<Integer, Integer> supportCount, PrintWriter writer) {
         List<Integer> f1 = new ArrayList<>();
         for(Integer i: l){
             float support = (float)supportCount.get(i)/sequenceCollection.size();
             if(parameters.get(i)<=support)
                 f1.add(i);
         }
-        System.out.println("The number of 1 sequential patterns is "+f1.size());
+        writer.println("The number of 1 sequential patterns is "+f1.size());
         for(Integer i: f1){
-            System.out.println("Pattern: <{"+i+"}>: Count = "+supportCount.get(i));
+            writer.println("Pattern: <{"+i+"}>: Count = "+supportCount.get(i));
         }
 
     }
