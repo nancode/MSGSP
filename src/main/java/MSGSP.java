@@ -32,27 +32,7 @@ public class MSGSP {
             //Finding F1
             findF1(l, supportCount, writer);
 
-            //Example to check finding support count of a list of candidate sequences
-            //Candidate sequence <{30}{40,70}>
-            List<Integer> tmp1 = new ArrayList<>();
-            tmp1.add(30);
-            List<Integer> tmp2 = new ArrayList<>();
-            tmp2.add(40);
-            tmp2.add(70);
-            List<List> itemSet = new ArrayList<>();
-            itemSet.add(tmp1);
-            itemSet.add(tmp2);
 
-            //Candidate sequence <{10, 20}>
-            List<Integer> tmp3 = new ArrayList<>();
-            tmp3.add(10);
-            tmp3.add(20);
-            List<List> itemSet2 = new ArrayList<>();
-            itemSet2.add(tmp3);
-            ArrayList<List<List>> candidateSequenceList = new ArrayList<>();
-            candidateSequenceList.add(itemSet);
-            candidateSequenceList.add(itemSet2);
-            findSupportCount(candidateSequenceList,sequenceCollection);
 
 
 
@@ -245,9 +225,5 @@ public class MSGSP {
 
         return sortedParameters;
     }
-
-
-
-
 
 }

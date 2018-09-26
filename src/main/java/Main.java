@@ -87,7 +87,7 @@ public class Main {
 	 * Output : HashMap of MIS values and a float with SDC value.
 	 */
 	
-	private static HashMap<Integer, Float> readParamsFile(String parameterfilePath) {
+	public static HashMap<Integer, Float> readParamsFile(String parameterfilePath) {
 		
 		//Map containing all the MIS values given in the parameters.txt file.
 		HashMap<Integer, Float> mis_values = new HashMap<Integer, Float>();
