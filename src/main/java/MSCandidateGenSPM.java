@@ -1,19 +1,29 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MSCandidateGenSPM {
 
 
     ArrayList<List<List>> candidateSequenceCollection = new ArrayList<>();
+    HashMap<Integer, Float> parameters = new HashMap<>();
+    Map<Integer,Integer> supportCount = new HashMap<>();
+    float sdc_value;
+    int sequenceCollectionSize;
+
+    MSCandidateGenSPM(HashMap<Integer, Float> parameters, Map<Integer, Integer> supportCount, float sdc_value, int sequenceCollectionSize){
+        this.parameters = parameters;
+        this.supportCount = supportCount;
+        this.sdc_value = sdc_value;
+        this.sequenceCollectionSize = sequenceCollectionSize;
+    }
 
 
-    public ArrayList<List<List>> join(ArrayList<List<List>> frequentItemSet, HashMap<Integer, Float> parameters){
+    public ArrayList<List<List>> join(ArrayList<List<List>> frequentItemSet){
 
             for(List<List> subSet1: frequentItemSet){
                 for(List<List> subset2: frequentItemSet){
-                   // System.out.println("Subset1: "+subSet1);
-                   // System.out.println("Subset2:"+subset2);
                     //if the MIS value of the first item in a sequence (denoted by s1) is less than (<) the MIS value of every other item in s1
                     boolean isS1FirstItemMISMin = isFirstItemMISMin(subSet1, parameters);
                     boolean isS2LastItemMISMin = isLastItemMISMin(subset2,parameters);
@@ -93,13 +103,122 @@ public class MSCandidateGenSPM {
                 }
             }
 
-            for(List sequence:candidateSequenceCollection){
+            for(List sequence:candidateSequenceCollection) {
                 System.out.println(sequence);
             }
-            //Prune the candidate sequence list
-            //prune(candidateSequenceCollection,sequenceCollection);
 
             return candidateSequenceCollection;
+    }
+
+    public ArrayList<List<List>> prune(ArrayList<List<List>> frequentItemset) {
+        ArrayList<List<List>> prunedCandidateSequence = new ArrayList<>();
+
+            for(List<List> candidateSequence: candidateSequenceCollection){
+                Boolean noSubseq = false;
+                System.out.println("candidate seq = "+candidateSequence);
+                System.out.println("Inital nosubseq = "+noSubseq);
+                if(getMininumSupportDifference(candidateSequence)) {
+                    for (int j = 0; j < candidateSequence.size(); j++) {
+                        for (int i = 0; i < candidateSequence.get(j).size(); i++) {
+                            //System.out.println("Item = "+candidateSequence.get(j).get(i));
+                            List<List> subsequence = new ArrayList<>();
+                            subsequence.addAll(candidateSequence);
+                            subsequence.remove(j);
+                            if (candidateSequence.get(j).size() != 1) {
+                                System.out.println();
+                                List<Integer> tempItemset = new ArrayList<>();
+                                tempItemset.addAll(candidateSequence.get(j));
+                                tempItemset.remove(i);
+                                subsequence.add(j, tempItemset);
+                            }
+                            //System.out.println("Candidate seq = "+candidateSequence);
+                            // System.out.println("subsequ = "+subsequence);
+                            if (containsLowestMIS(subsequence, candidateSequence) && (!findIfSubsequence(subsequence, frequentItemset))) {
+                                System.out.println("Does not contain subseq " + subsequence);
+                                noSubseq = true;
+                                break;
+                            }
+                        }
+                        if (noSubseq) {
+                            System.out.println("Does not contain subseq");
+                            break;
+                        }
+                    }
+                    System.out.println("For candidate seq NoSubseq = " + noSubseq);
+                    if (!noSubseq) {
+                        System.out.println("Adding seq");
+                        prunedCandidateSequence.add(candidateSequence);
+                    }
+                }
+               // noSubseq =false;
+            }
+
+            System.out.println(prunedCandidateSequence);
+            return prunedCandidateSequence;
+
+    }
+
+    private boolean getMininumSupportDifference(List<List> candidateSequence) {
+        float minSup = (float) 0.0;
+        float maxSup = (float) 0.0;
+        for(List<Integer> itemset: candidateSequence){
+            for(Integer item: itemset){
+                float support = supportCount.get(item)/sequenceCollectionSize;
+                if(support<minSup){
+                    minSup = support;
+                }
+                if(support>maxSup){
+                    maxSup = support;
+                }
+            }
+        }
+        if(Math.abs(maxSup-minSup)<=sdc_value){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean containsLowestMIS(List<List> subsequence, List<List> candidateSequence) {
+        int ind = getMinIndex(candidateSequence,parameters);
+        Integer candItem = getItem(candidateSequence,ind);
+        for(List<Integer> itemset: subsequence){
+            for(Integer item: itemset){
+               // for(Integer item: itemset){
+                    if(item.equals(candItem)){
+                        return true;
+                    }
+              //  }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean findIfSubsequence(List<List> subsequence, ArrayList<List<List>> frequentItemset) {
+        HashMap<List<List>, Integer> supportCount = new HashMap<>();
+
+       // for(List<List> candidateSequence: candidateSequenceList) {
+            for (List<List> sequence : frequentItemset) {
+                int i = 0;
+                //List<Integer> candidateItem =
+                for (List<Integer> itemset : sequence) {
+                    if (i < subsequence.size()) {
+                        // System.out.println(itemset + "---" + candidateSequence.get(i));
+                        if (itemset.containsAll(subsequence.get(i))) {
+                            i++;
+                        }
+                    }
+                }
+                // System.out.println("i == " + i);
+                if (i == subsequence.size()) {
+                    return true;
+                }
+            }
+       // }
+
+
+        return false;
+
     }
 
     private void joinItemsetsInIndex0(List<List> subSet1, List<List> subset2) {
@@ -114,10 +233,6 @@ public class MSCandidateGenSPM {
         if(!candidateSequenceCollection.contains(newSequenceC2)) {
             candidateSequenceCollection.add(newSequenceC2);
         }
-    }
-
-    private void prune(ArrayList<List<List>> candidateSequenceCollection, ArrayList<List> sequenceCollection) {
-
     }
 
     private void getCSeqWithLastItemSeperate(List<List> subSet1, List<List> subset2) {
@@ -156,7 +271,7 @@ public class MSCandidateGenSPM {
             return false;
     }
 
-    private Integer getItem(List<List> subset, int index) {
+    public Integer getItem(List<List> subset, int index) {
         Integer it = null;
         int ind=0;
         for(List itemset: subset){
@@ -231,7 +346,7 @@ public class MSCandidateGenSPM {
         return length;
     }
 
-    private int getMinIndex(List<List> subSet1, HashMap<Integer, Float> parameters) {
+    public int getMinIndex(List<List> subSet1, HashMap<Integer, Float> parameters) {
         int minInd = -1;
         int i=0;
         Object minItem = 0;
@@ -258,10 +373,11 @@ public class MSCandidateGenSPM {
 
 
     //Testing MSCandidateGenSPM
-    public static void main(String args[]){
+   /* public static void main(String args[]){
             //Main main = new Main();
             HashMap<Integer, Float> parameter = Main.readParamsFile("./src/main/resources/inputdata/parameters.txt");
-            MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM();
+
+        //    MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameter, supportCount, sdc_value, sequenceCollection.size());
 
         //Example to check finding support count of a list of candidate sequences
         //Candidate sequence <{30}{40,70}>
@@ -382,20 +498,21 @@ public class MSCandidateGenSPM {
         itemSet9.add(tmp24);
         itemSet9.add(tmp25);
 
-        ArrayList<List<List>> candidateSequenceList = new ArrayList<>();
-        candidateSequenceList.add(itemSet);
-        candidateSequenceList.add(itemSet2);
-        candidateSequenceList.add(itemSet3);
-        candidateSequenceList.add(itemSet4);
-        candidateSequenceList.add(itemSet5);
-        candidateSequenceList.add(itemSet6);
-        candidateSequenceList.add(itemSet7);
-        candidateSequenceList.add(itemSet8);
-        candidateSequenceList.add(itemSet9);
+        ArrayList<List<List>> frequentItemSet = new ArrayList<>();
+        frequentItemSet.add(itemSet);
+        frequentItemSet.add(itemSet2);
+        frequentItemSet.add(itemSet3);
+        frequentItemSet.add(itemSet4);
+        frequentItemSet.add(itemSet5);
+        frequentItemSet.add(itemSet6);
+        frequentItemSet.add(itemSet7);
+        frequentItemSet.add(itemSet8);
+        frequentItemSet.add(itemSet9);
 
 
-        msCandidateGenSPM.join(candidateSequenceList,parameter);
+        msCandidateGenSPM.join(frequentItemSet);
+        msCandidateGenSPM.prune(frequentItemSet);*/
        // System.out.println(msCandidateGenSPM.isEqual(itemSet,itemSet2,1,msCandidateGenSPM.getLength(itemSet2)-1));
        // System.out.println(msCandidateGenSPM.isLastItemMISMin(itemSet,parameter));
-    }
+    //}
 }
