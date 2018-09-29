@@ -1,7 +1,0 @@
-The number of 1 sequential patterns is 6
-Pattern: <{20}>: Count = 1
-Pattern: <{70}>: Count = 3
-Pattern: <{80}>: Count = 2
-Pattern: <{40}>: Count = 2
-Pattern: <{90}>: Count = 3
-Pattern: <{30}>: Count = 4

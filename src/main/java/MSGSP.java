@@ -30,30 +30,39 @@ public class MSGSP {
             PrintWriter writer = new PrintWriter("./output/result.txt","UTF-8");
 
             //Finding F1
-            findF1(l, supportCount, writer);
+            ArrayList<List<List>> frequentItemset = findF1(l, supportCount, writer);
 
-            //Example to check finding support count of a list of candidate sequences
-            //Candidate sequence <{30}{40,70}>
-            List<Integer> tmp1 = new ArrayList<>();
-            tmp1.add(30);
-            List<Integer> tmp2 = new ArrayList<>();
-            tmp2.add(40);
-            tmp2.add(70);
-            List<List> itemSet = new ArrayList<>();
-            itemSet.add(tmp1);
-            itemSet.add(tmp2);
+            System.out.println(frequentItemset);
+            ArrayList<List<List>> candidateSequence = new ArrayList<>();
+            MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameters,supportCount,sdc_value,sequenceCollection.size());
 
-            //Candidate sequence <{10, 20}>
-            List<Integer> tmp3 = new ArrayList<>();
-            tmp3.add(10);
-            tmp3.add(20);
-            List<List> itemSet2 = new ArrayList<>();
-            itemSet2.add(tmp3);
-            ArrayList<List<List>> candidateSequenceList = new ArrayList<>();
-            candidateSequenceList.add(itemSet);
-            candidateSequenceList.add(itemSet2);
-            findSupportCount(candidateSequenceList,sequenceCollection);
+            //int k =2;
+            for(int k =2; !frequentItemset.isEmpty();k++){
+                if(k==2){
+                    //call candidateGen2 method
 
+                }else {
+                    msCandidateGenSPM.join(frequentItemset);
+                    candidateSequence.addAll(msCandidateGenSPM.prune(frequentItemset));
+                }
+
+                //Finding the frequent itemsets
+                HashMap<List<List>,Integer> itemSetSupport = findSupportCount(candidateSequence,sequenceCollection);
+                //System.out.println("Candidate seq = "+candidateSequence);
+                //finding frequent itemset
+                frequentItemset.clear();
+                for(List<List> itemset: candidateSequence){
+                    System.out.println(itemset);
+                    int minIndex = msCandidateGenSPM.getMinIndex(itemset,parameters);
+                    Integer minMISItem = msCandidateGenSPM.getItem(itemset,minIndex);
+                    if(itemSetSupport.containsKey(itemset)) {
+                        float support = (float) itemSetSupport.get(itemset) / sequenceCollection.size();
+                        if (parameters.get(minMISItem) <= support)
+                            frequentItemset.add(itemset);
+                    }
+                }
+                printToFile(frequentItemset,k,writer,itemSetSupport);
+            }
 
 
             writer.close();
@@ -65,23 +74,53 @@ public class MSGSP {
 
     }
 
+    private void printToFile(ArrayList<List<List>> frequentItemset, int k, PrintWriter writer, HashMap<List<List>, Integer> itemSetSupport) {
+        writer.println("The number of "+k+" sequential patterns is "+frequentItemset.size());
+        for(List<List> sequence:frequentItemset){
+            String frequentItemSequence ="";
+            for(List<Integer> itemset: sequence) {
+                frequentItemSequence = "{";
+                for (int i=0; i<itemset.size();i++) {
+                    frequentItemSequence += itemset.get(i);
+                    if(i<itemset.size()-1) {
+                        frequentItemSequence+=",";
+                    }
+                }
+                frequentItemSequence += "}";
+            }
+            writer.println("Pattern: <"+frequentItemSequence+">: Count = " + itemSetSupport.get(sequence));
+
+        }
+    }
+
     /**
      * Finding all frequent 1-itemsets from L
      * @param l
      * @param supportCount
      * @param writer
      */
-    private void findF1(List<Integer> l, Map<Integer, Integer> supportCount, PrintWriter writer) {
+    private ArrayList<List<List>> findF1(List<Integer> l, Map<Integer, Integer> supportCount, PrintWriter writer) {
         List<Integer> f1 = new ArrayList<>();
         for(Integer i: l){
-            float support = (float)supportCount.get(i)/sequenceCollection.size();
-            if(parameters.get(i)<=support)
-                f1.add(i);
+            if(supportCount.containsKey(i)) {
+                float support = (float) supportCount.get(i) / sequenceCollection.size();
+                if (parameters.get(i) <= support)
+                    f1.add(i);
+            }
         }
+
+        ArrayList<List<List>> frequentItemset = new ArrayList<>();
         writer.println("The number of 1 sequential patterns is "+f1.size());
         for(Integer i: f1){
+            List<List> sequence = new ArrayList<>();
+            List<Integer> itemset = new ArrayList<>();
+            itemset.add(i);
+            sequence.add(itemset);
+            frequentItemset.add(sequence);
             writer.println("Pattern: <{"+i+"}>: Count = "+supportCount.get(i));
         }
+
+        return frequentItemset;
 
     }
 
@@ -245,9 +284,5 @@ public class MSGSP {
 
         return sortedParameters;
     }
-
-
-
-
 
 }
