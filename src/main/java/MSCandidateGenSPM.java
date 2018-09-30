@@ -103,9 +103,9 @@ public class MSCandidateGenSPM {
                 }
             }
 
-            for(List sequence:candidateSequenceCollection) {
+           /* for(List sequence:candidateSequenceCollection) {
                 System.out.println(sequence);
-            }
+            }*/
 
             return candidateSequenceCollection;
     }
@@ -115,8 +115,8 @@ public class MSCandidateGenSPM {
 
             for(List<List> candidateSequence: candidateSequenceCollection){
                 Boolean noSubseq = false;
-                System.out.println("candidate seq = "+candidateSequence);
-                System.out.println("Inital nosubseq = "+noSubseq);
+              //  System.out.println("candidate seq = "+candidateSequence);
+              //  System.out.println("Inital nosubseq = "+noSubseq);
                 if(getMininumSupportDifference(candidateSequence)) {
                     for (int j = 0; j < candidateSequence.size(); j++) {
                         for (int i = 0; i < candidateSequence.get(j).size(); i++) {
@@ -125,7 +125,7 @@ public class MSCandidateGenSPM {
                             subsequence.addAll(candidateSequence);
                             subsequence.remove(j);
                             if (candidateSequence.get(j).size() != 1) {
-                                System.out.println();
+                               // System.out.println();
                                 List<Integer> tempItemset = new ArrayList<>();
                                 tempItemset.addAll(candidateSequence.get(j));
                                 tempItemset.remove(i);
@@ -134,26 +134,26 @@ public class MSCandidateGenSPM {
                             //System.out.println("Candidate seq = "+candidateSequence);
                             // System.out.println("subsequ = "+subsequence);
                             if (containsLowestMIS(subsequence, candidateSequence) && (!findIfSubsequence(subsequence, frequentItemset))) {
-                                System.out.println("Does not contain subseq " + subsequence);
+                              //  System.out.println("Does not contain subseq " + subsequence);
                                 noSubseq = true;
                                 break;
                             }
                         }
                         if (noSubseq) {
-                            System.out.println("Does not contain subseq");
+                          //  System.out.println("Does not contain subseq");
                             break;
                         }
                     }
-                    System.out.println("For candidate seq NoSubseq = " + noSubseq);
+                  //  System.out.println("For candidate seq NoSubseq = " + noSubseq);
                     if (!noSubseq) {
-                        System.out.println("Adding seq");
+                      //  System.out.println("Adding seq");
                         prunedCandidateSequence.add(candidateSequence);
                     }
                 }
                // noSubseq =false;
             }
 
-            System.out.println(prunedCandidateSequence);
+            //System.out.println(prunedCandidateSequence);
             return prunedCandidateSequence;
 
     }
