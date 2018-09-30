@@ -34,10 +34,7 @@ public class MSGSP {
 			//Finding F1
 			ArrayList<List<List>> frequentItemset = findF1(l, supportCount, writer);
 
-			System.out.println("F1 ="+frequentItemset);
-
-
-			//int k =2;
+			//Generating candidate sequence and frequent itemsets until F(k-1) = null
 			for(int k =2; !frequentItemset.isEmpty();k++){
 				ArrayList<List<List>> candidateSequence = new ArrayList<>();
 				MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameters,supportCount,sdc_value,sequenceCollection.size());
@@ -46,6 +43,7 @@ public class MSGSP {
 					candidateSequence = findC2(l, supportCount, parameters,sdc_value,sequenceCollection);
 
 				}else {
+				    //Find candidate for Ck
 					candidateSequence.clear();
 					msCandidateGenSPM.join(frequentItemset);
 					candidateSequence.addAll(msCandidateGenSPM.prune(frequentItemset));
@@ -53,12 +51,8 @@ public class MSGSP {
 
 				//Finding the frequent itemsets
 				HashMap<List<List>,Integer> itemSetSupport = findSupportCount(candidateSequence,sequenceCollection);
-				//				System.out.println("Candidate seq "+k+" = "+candidateSequence);
-				//finding frequent itemset
 				frequentItemset.clear();
-				//System.out.println("Before: Frequent itemset in k="+k+" is "+frequentItemset);
 				for(List<List> itemset: candidateSequence){
-					//System.out.println(itemset);
 					int minIndex = msCandidateGenSPM.getMinIndex(itemset,parameters);
 					Integer minMISItem = msCandidateGenSPM.getItem(itemset,minIndex);
 					if(itemSetSupport.containsKey(itemset)) {
@@ -67,13 +61,11 @@ public class MSGSP {
 							frequentItemset.add(itemset);
 					}
 				}
-				//                System.out.println("Frequent itemset "+k+" is "+frequentItemset);
-				printToFile(frequentItemset,k,writer,itemSetSupport);
+                if(!frequentItemset.isEmpty()) {
+                    printToFile(frequentItemset, k, writer, itemSetSupport);
+                }
 			}
-
-
 			writer.close();
-
 
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -81,6 +73,13 @@ public class MSGSP {
 
 	}
 
+    /**
+     * Printing patterns to a file
+     * @param frequentItemset
+     * @param k
+     * @param writer
+     * @param itemSetSupport
+     */
 	private void printToFile(ArrayList<List<List>> frequentItemset, int k, PrintWriter writer, HashMap<List<List>, Integer> itemSetSupport) {
 		writer.println("The number of "+k+" sequential patterns is "+frequentItemset.size());
 		for(List<List> sequence:frequentItemset){
@@ -139,26 +138,19 @@ public class MSGSP {
 		List<Integer> theLSet = new ArrayList<>();
 		Integer item1 = 0;
 		boolean firstItem  = false;
-		// printHashMap(parameters);
 		for(Integer key: parameters.keySet()){
             if(supportCount.containsKey(key)) {
                 float support = (float) supportCount.get(key) / sequenceCollection.size();
-                // System.out.println(key+" support = "+support);
                 if (parameters.get(key) <= support && !firstItem) {
-                    //  System.out.println("First item: "+key);
                     theLSet.add(key);
                     item1 = key;
                     firstItem = true;
                 } else if (firstItem && parameters.get(item1) <= support) {
-                    // System.out.println(parameters.get(item1)+" ?? "+support);
                     theLSet.add(key);
                 }
             }
 
 		}
-
-		System.out.println("L = "+theLSet);
-
 		return theLSet;
 	}
 
@@ -226,10 +218,6 @@ public class MSGSP {
 
 		//To sort the map by key
 		Map<Integer, Integer> map = new TreeMap<>(supportCount);
-
-		/*  for (Integer itemSet:map.keySet()) {
-            System.out.println(itemSet+" -- "+supportCount.get(itemSet));
-        }*/
 		return map;
 
 	}
@@ -247,18 +235,14 @@ public class MSGSP {
 		for(List<List> candidateSequence: candidateSequenceList) {
 			for (List<List> sequence : sequenceCollection) {
 				int i = 0;
-				//List<Integer> candidateItem =
 				for (List<Integer> itemset : sequence) {
 					if (i < candidateSequence.size()) {
-						// System.out.println(itemset + "---" + candidateSequence.get(i));
 						if (itemset.containsAll(candidateSequence.get(i))) {
 							i++;
 						}
 					}
 				}
-				// System.out.println("i == " + i);
 				if (i == candidateSequence.size()) {
-					// System.out.println("Adding an item");
 					if (supportCount.containsKey(candidateSequence)) {
 						supportCount.put(candidateSequence, supportCount.get(candidateSequence) + 1);
 					} else {
@@ -268,9 +252,6 @@ public class MSGSP {
 			}
 		}
 
-		/*for (List<List> itemSet:supportCount.keySet()) {
-			System.out.println(itemSet+" -- "+supportCount.get(itemSet));
-		}*/
 		return supportCount;
 
 	}
@@ -299,15 +280,8 @@ public class MSGSP {
 	 */
 
 	private ArrayList<List<List>> findC2(List<Integer> l, Map<Integer, Integer> supportCount, HashMap<Integer, Float> parameters, Float sdc_value, ArrayList<List> sequenceCollection) {
-
 		int count =0;
-		//		String candidate = "";
-
 		ArrayList<List<List>> candidatesLevel2 = new ArrayList<List<List>>();
-		System.out.println("sequence collection size - "  + sequenceCollection.size());
-		System.out.println("collection size - "  + l.size());
-
-		System.out.println("Candiate keys Level 2" );
 
 		for (int i = 0; i < l.size()-1; i++) {
 			//find the supportcount of an element in the List l.
@@ -327,8 +301,8 @@ public class MSGSP {
 				List<List> level2Candidate0 = new ArrayList<>();
 				level2Candidate0.add(b0);
 				level2Candidate0.add(c0);
-				candidatesLevel2.add(level2Candidate0);
-				for (int j=i+1; j< l.size(); j++) {
+                candidatesLevel2.add(level2Candidate0);
+                for (int j=i+1; j< l.size(); j++) {
 					float supportCountElement2 = ((float)supportCount.get( l.get(j) )) / sequenceCollection.size();
 					//Comparing the difference in support count with the sdc_value from parameter file.
 					if( (  supportCountElement2 >= parameters.get(l.get(i)) &&
@@ -339,6 +313,7 @@ public class MSGSP {
 						List<Integer> a = new ArrayList<>();
 						a.add(l.get(i));
 						a.add(l.get(j));
+						Collections.sort(a);
 						List<List> level2Candidate1 = new ArrayList<>();
 						level2Candidate1.add(a);
 
@@ -360,61 +335,15 @@ public class MSGSP {
 						level2Candidate3.add(b1);
 						level2Candidate3.add(c1);
 
-
-
-						System.out.print( level2Candidate0 + " "+ level2Candidate1 + " " + level2Candidate2 + " " +level2Candidate3+ " " );
-
 						candidatesLevel2.add(level2Candidate1);
 						candidatesLevel2.add(level2Candidate2);
+						candidatesLevel2.add(level2Candidate3);
 						count ++;
-
-						//comparison of {y,x} *Incomplete* Since the order changes do we need to compare sc1 >= sc2 for y,x to be added?
-
-						// for reference, can be removed once the whole execution is done.
-						/*	System.out.println("{" + l.get(i)+ "," +l.get(j) + "}");
-						System.out.println("{" + l.get(i)+ "}" +" "+ "{"+l.get(j) +"}");
-
-						//generate {x,y}
-						candidate = "{" + l.get(i)+ "," +l.get(j) + "}";
-						if(!c2.containsKey(candidate)) {
-							c2.put(candidate, (float) 0);
-						}
-
-						//generate {x},{y}
-						candidate = "{" + l.get(i)+ "}" +" "+ "{"+l.get(j) +"}";
-						if(!c2.containsKey(candidate)) {
-							c2.put(candidate, (float) 0);
-						}
-
-						//generate {y,x}
-						candidate = "{" + l.get(j)+ "}" +" "+ "{"+l.get(i) +"}";
-						if(!c2.containsKey(candidate)) {
-							c2.put(candidate, (float) 0);
-						}
-
-						//generate {y},{x}
-						candidate = "{" + l.get(j)+ "}" +" "+ "{"+l.get(i) +"}";
-						if(!c2.containsKey(candidate)) {
-							c2.put(candidate, (float) 0);
-						}
-
-						count++;*/
 					}
 				}
 			}
 		}
-		System.out.println("");
-		System.out.println("Total number of candidates - " + candidatesLevel2.size());
 		return candidatesLevel2;
 	}
 
-
-
-	public void checker(String full, String pattern) {
-		full = "{10, 20} {30} {10, 40, 60, 70}";
-		pattern = "{30, 70}";
-		String element = "30";
-		full.contains(element);
-
-	}
 }
