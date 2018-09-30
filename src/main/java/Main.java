@@ -103,7 +103,7 @@ public class Main {
 				//To filter those lines containing MIS keyword.
 				if(text.contains("MIS(")) {
 					//this pattern compiles integer/float/character datatypes.
-					Pattern p_mis = Pattern.compile("MIS\\((([([A-Za-z0-9]*[.])?[0-9]+]+))\\) = ([([0-9]*[.])?[0-9]+]+)",Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+					Pattern p_mis = Pattern.compile("MIS\\((([([A-Za-z0-9]*[.])?[0-9]+]+))\\)[ ]*=[ ]*([([0-9]*[.])?[0-9]+]+)",Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 					Matcher m_mis = p_mis.matcher(text);
 					if (m_mis.find())
 					{
@@ -114,7 +114,7 @@ public class Main {
 				//filters only lines with SDC
 				else if(text.contains("SDC")){
 					//Pattern matches any java float/integer value.
-					Pattern p_sdc = Pattern.compile("SDC = ([([0-9]*[.])?[0-9]+]+)",Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+					Pattern p_sdc = Pattern.compile("SDC[ ]*=[ ]*([([0-9]*[.])?[0-9]+]+)",Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 					Matcher m_sdc = p_sdc.matcher(text);
 					if (m_sdc.find())
 					{
