@@ -14,7 +14,6 @@ public class MSGSP {
 	MSGSP(ArrayList<List> sequenceCollection, HashMap<Integer, Float> parameters, float sdc_value){
 		this.sequenceCollection = sequenceCollection;
 		this.parameters = sortByValue(parameters); //sorted MIS values
-        System.out.println("Parameters "+parameters);
         this.sdc_value = sdc_value;
 
 		//Finding 1-itemsets
@@ -39,27 +38,26 @@ public class MSGSP {
 
 
 			//int k =2;
-			for(int k =2; k!=6;k++){
-                System.out.println("K = "+k);
-                ArrayList<List<List>> candidateSequence = new ArrayList<>();
-                MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameters,supportCount,sdc_value,sequenceCollection.size());
-                if(k==2){
+			for(int k =2; !frequentItemset.isEmpty();k++){
+				ArrayList<List<List>> candidateSequence = new ArrayList<>();
+				MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameters,supportCount,sdc_value,sequenceCollection.size());
+				if(k==2){
 					//Find candidates for second level
-					candidateSequence = findC2(l, supportCount, parameters,sdc_value);
+					candidateSequence = findC2(l, supportCount, parameters,sdc_value,sequenceCollection);
 
 				}else {
-				    candidateSequence.clear();
+					candidateSequence.clear();
 					msCandidateGenSPM.join(frequentItemset);
 					candidateSequence.addAll(msCandidateGenSPM.prune(frequentItemset));
 				}
 
 				//Finding the frequent itemsets
 				HashMap<List<List>,Integer> itemSetSupport = findSupportCount(candidateSequence,sequenceCollection);
-				System.out.println("Candidate seq "+k+" = "+candidateSequence);
+				//				System.out.println("Candidate seq "+k+" = "+candidateSequence);
 				//finding frequent itemset
 				frequentItemset.clear();
-                //System.out.println("Before: Frequent itemset in k="+k+" is "+frequentItemset);
-                for(List<List> itemset: candidateSequence){
+				//System.out.println("Before: Frequent itemset in k="+k+" is "+frequentItemset);
+				for(List<List> itemset: candidateSequence){
 					//System.out.println(itemset);
 					int minIndex = msCandidateGenSPM.getMinIndex(itemset,parameters);
 					Integer minMISItem = msCandidateGenSPM.getItem(itemset,minIndex);
@@ -69,8 +67,8 @@ public class MSGSP {
 							frequentItemset.add(itemset);
 					}
 				}
-                System.out.println("Frequent itemset "+k+" is "+frequentItemset);
-                printToFile(frequentItemset,k,writer,itemSetSupport);
+				//                System.out.println("Frequent itemset "+k+" is "+frequentItemset);
+				printToFile(frequentItemset,k,writer,itemSetSupport);
 			}
 
 
@@ -143,7 +141,6 @@ public class MSGSP {
 		boolean firstItem  = false;
 		// printHashMap(parameters);
 		for(Integer key: parameters.keySet()){
-            System.out.println("key ="+key);
             if(supportCount.containsKey(key)) {
                 float support = (float) supportCount.get(key) / sequenceCollection.size();
                 // System.out.println(key+" support = "+support);
@@ -301,30 +298,42 @@ public class MSGSP {
 	 * @return ArrayList of candidate keys.
 	 */
 
-	private ArrayList<List<List>> findC2(List<Integer> l, Map<Integer, Integer> supportCount, HashMap<Integer, Float> parameters, Float sdc_value) {
-		
-		//		int count =0;
+	private ArrayList<List<List>> findC2(List<Integer> l, Map<Integer, Integer> supportCount, HashMap<Integer, Float> parameters, Float sdc_value, ArrayList<List> sequenceCollection) {
+
+		int count =0;
 		//		String candidate = "";
-		
+
 		ArrayList<List<List>> candidatesLevel2 = new ArrayList<List<List>>();
-		
+		System.out.println("sequence collection size - "  + sequenceCollection.size());
+		System.out.println("collection size - "  + l.size());
+
+		System.out.println("Candiate keys Level 2" );
+
 		for (int i = 0; i < l.size()-1; i++) {
 			//find the supportcount of an element in the List l.
-			
-			float supportCountElement1 = ((float)supportCount.get( l.get(i) )) / (float)sequenceCollection.size();
-			
+			float supportCountElement1 = ((float)supportCount.get( l.get(i) )) / sequenceCollection.size();
+
 			//Check whether the supportcount is greater than the specified MIS Value in the parameter file.
 			//Note: This condition should be checked before considering the second value, ie starting the second loop.
 			//If this fails, go to the next element in ith loop.
-			
+
 			if( supportCountElement1 >= parameters.get(l.get(i))) {
-				
+
+				//Add {x},{x}
+				List<Integer> b0 = new ArrayList<>();
+				b0.add(l.get(i));
+				List<Integer> c0 = new ArrayList<>();
+				c0.add(l.get(i));
+				List<List> level2Candidate0 = new ArrayList<>();
+				level2Candidate0.add(b0);
+				level2Candidate0.add(c0);
+				candidatesLevel2.add(level2Candidate0);
 				for (int j=i+1; j< l.size(); j++) {
-					
-					float supportCountElement2 = ((float)supportCount.get( l.get(j) )) / (float)sequenceCollection.size();
+					float supportCountElement2 = ((float)supportCount.get( l.get(j) )) / sequenceCollection.size();
 					//Comparing the difference in support count with the sdc_value from parameter file.
 					if( (  supportCountElement2 >= parameters.get(l.get(i)) &&
 							(Math.abs( supportCountElement2 - supportCountElement1 ) <= sdc_value))){
+
 
 						//Adds {x,y}
 						List<Integer> a = new ArrayList<>();
@@ -342,9 +351,23 @@ public class MSGSP {
 						level2Candidate2.add(b);
 						level2Candidate2.add(c);
 
+						//Add {y},{x}
+						List<Integer> b1 = new ArrayList<>();
+						b1.add(l.get(j));
+						List<Integer> c1 = new ArrayList<>();
+						c1.add(l.get(i));
+						List<List> level2Candidate3 = new ArrayList<>();
+						level2Candidate3.add(b1);
+						level2Candidate3.add(c1);
+
+
+
+						System.out.print( level2Candidate0 + " "+ level2Candidate1 + " " + level2Candidate2 + " " +level2Candidate3+ " " );
+
 						candidatesLevel2.add(level2Candidate1);
 						candidatesLevel2.add(level2Candidate2);
-						
+						count ++;
+
 						//comparison of {y,x} *Incomplete* Since the order changes do we need to compare sc1 >= sc2 for y,x to be added?
 
 						// for reference, can be removed once the whole execution is done.
@@ -380,8 +403,12 @@ public class MSGSP {
 				}
 			}
 		}
+		System.out.println("");
+		System.out.println("Total number of candidates - " + candidatesLevel2.size());
 		return candidatesLevel2;
 	}
+
+
 
 	public void checker(String full, String pattern) {
 		full = "{10, 20} {30} {10, 40, 60, 70}";
