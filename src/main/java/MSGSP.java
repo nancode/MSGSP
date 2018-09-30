@@ -14,7 +14,7 @@ public class MSGSP {
 	MSGSP(ArrayList<List> sequenceCollection, HashMap<Integer, Float> parameters, float sdc_value){
 		this.sequenceCollection = sequenceCollection;
 		this.parameters = sortByValue(parameters); //sorted MIS values
-		this.sdc_value = sdc_value;
+        this.sdc_value = sdc_value;
 
 		//Finding 1-itemsets
 		List<Integer> itemSetCollection = find_1_ItemSet(sequenceCollection);
@@ -84,9 +84,9 @@ public class MSGSP {
 	private void printToFile(ArrayList<List<List>> frequentItemset, int k, PrintWriter writer, HashMap<List<List>, Integer> itemSetSupport) {
 		writer.println("The number of "+k+" sequential patterns is "+frequentItemset.size());
 		for(List<List> sequence:frequentItemset){
-			String frequentItemSequence ="";
+            String frequentItemSequence ="";
 			for(List<Integer> itemset: sequence) {
-				frequentItemSequence = "{";
+                frequentItemSequence += "{";
 				for (int i=0; i<itemset.size();i++) {
 					frequentItemSequence += itemset.get(i);
 					if(i<itemset.size()-1) {
@@ -94,11 +94,10 @@ public class MSGSP {
 					}
 				}
 				frequentItemSequence += "}";
-			}
-			writer.println("Pattern: <"+frequentItemSequence+">: Count = " + itemSetSupport.get(sequence));
-
-		}
-	}
+            }
+            writer.println("Pattern: <"+frequentItemSequence+">: Count = " + itemSetSupport.get(sequence));
+        }
+    }
 
 	/**
 	 * Finding all frequent 1-itemsets from L
@@ -142,18 +141,19 @@ public class MSGSP {
 		boolean firstItem  = false;
 		// printHashMap(parameters);
 		for(Integer key: parameters.keySet()){
-			float support = (float)supportCount.get(key)/sequenceCollection.size();
-			// System.out.println(key+" support = "+support);
-			if(parameters.get(key)<=support && !firstItem) {
-				//  System.out.println("First item: "+key);
-				theLSet.add(key);
-				item1 = key;
-				firstItem = true;
-			}
-			else if(firstItem && parameters.get(item1)<=support){
-				// System.out.println(parameters.get(item1)+" ?? "+support);
-				theLSet.add(key);
-			}
+            if(supportCount.containsKey(key)) {
+                float support = (float) supportCount.get(key) / sequenceCollection.size();
+                // System.out.println(key+" support = "+support);
+                if (parameters.get(key) <= support && !firstItem) {
+                    //  System.out.println("First item: "+key);
+                    theLSet.add(key);
+                    item1 = key;
+                    firstItem = true;
+                } else if (firstItem && parameters.get(item1) <= support) {
+                    // System.out.println(parameters.get(item1)+" ?? "+support);
+                    theLSet.add(key);
+                }
+            }
 
 		}
 
@@ -311,7 +311,6 @@ public class MSGSP {
 
 		for (int i = 0; i < l.size()-1; i++) {
 			//find the supportcount of an element in the List l.
-
 			float supportCountElement1 = ((float)supportCount.get( l.get(i) )) / sequenceCollection.size();
 
 			//Check whether the supportcount is greater than the specified MIS Value in the parameter file.
@@ -330,7 +329,6 @@ public class MSGSP {
 				level2Candidate0.add(c0);
 				candidatesLevel2.add(level2Candidate0);
 				for (int j=i+1; j< l.size(); j++) {
-
 					float supportCountElement2 = ((float)supportCount.get( l.get(j) )) / sequenceCollection.size();
 					//Comparing the difference in support count with the sdc_value from parameter file.
 					if( (  supportCountElement2 >= parameters.get(l.get(i)) &&
