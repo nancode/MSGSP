@@ -34,28 +34,31 @@ public class MSGSP {
 			//Finding F1
 			ArrayList<List<List>> frequentItemset = findF1(l, supportCount, writer);
 
-			System.out.println(frequentItemset);
-			ArrayList<List<List>> candidateSequence = new ArrayList<>();
-			MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameters,supportCount,sdc_value,sequenceCollection.size());
+			System.out.println("F1 ="+frequentItemset);
+
 
 			//int k =2;
 			for(int k =2; !frequentItemset.isEmpty();k++){
-				if(k==2){
+                ArrayList<List<List>> candidateSequence = new ArrayList<>();
+                MSCandidateGenSPM msCandidateGenSPM = new MSCandidateGenSPM(parameters,supportCount,sdc_value,sequenceCollection.size());
+                if(k==2){
 					//Find candidates for second level
-					findC2(l, supportCount, parameters,sdc_value);
+					candidateSequence = findC2(l, supportCount, parameters,sdc_value);
 
 				}else {
+				    candidateSequence.clear();
 					msCandidateGenSPM.join(frequentItemset);
 					candidateSequence.addAll(msCandidateGenSPM.prune(frequentItemset));
 				}
 
 				//Finding the frequent itemsets
 				HashMap<List<List>,Integer> itemSetSupport = findSupportCount(candidateSequence,sequenceCollection);
-				//System.out.println("Candidate seq = "+candidateSequence);
+				System.out.println("Candidate seq "+k+" = "+candidateSequence);
 				//finding frequent itemset
 				frequentItemset.clear();
-				for(List<List> itemset: candidateSequence){
-					System.out.println(itemset);
+                //System.out.println("Before: Frequent itemset in k="+k+" is "+frequentItemset);
+                for(List<List> itemset: candidateSequence){
+					//System.out.println(itemset);
 					int minIndex = msCandidateGenSPM.getMinIndex(itemset,parameters);
 					Integer minMISItem = msCandidateGenSPM.getItem(itemset,minIndex);
 					if(itemSetSupport.containsKey(itemset)) {
@@ -64,7 +67,8 @@ public class MSGSP {
 							frequentItemset.add(itemset);
 					}
 				}
-				printToFile(frequentItemset,k,writer,itemSetSupport);
+                System.out.println("Frequent itemset "+k+" is "+frequentItemset);
+                printToFile(frequentItemset,k,writer,itemSetSupport);
 			}
 
 
@@ -264,9 +268,9 @@ public class MSGSP {
 			}
 		}
 
-		for (List<List> itemSet:supportCount.keySet()) {
+		/*for (List<List> itemSet:supportCount.keySet()) {
 			System.out.println(itemSet+" -- "+supportCount.get(itemSet));
-		}
+		}*/
 		return supportCount;
 
 	}
@@ -332,8 +336,8 @@ public class MSGSP {
 						List<Integer> c = new ArrayList<>();
 						c.add(l.get(j));
 						List<List> level2Candidate2 = new ArrayList<>();
-						level2Candidate1.add(b);
-						level2Candidate1.add(c);
+						level2Candidate2.add(b);
+						level2Candidate2.add(c);
 
 						candidatesLevel2.add(level2Candidate1);
 						candidatesLevel2.add(level2Candidate2);
