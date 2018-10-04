@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class Main {
     private static float sdc_value;
-	public static void main(String args[]){
+	public static void main(String args[]) throws Exception {
 		File sequenceFile = new File("./src/main/resources/inputdata/sequences.txt");
 		String parameterFilePath = "./src/main/resources/inputdata/parameters.txt";
 
@@ -22,10 +22,11 @@ public class Main {
 		HashMap<Integer,Float> mis_values = readParamsFile(parameterFilePath);
 		//printHashMap(mis_values);
 
+		if(sequenceCollection.isEmpty()||mis_values.size()==0){
+			throw new Exception("One or more input files is empty!!");
+		}
+
 		MSGSP msgsp = new MSGSP(sequenceCollection,mis_values,sdc_value);
-
-		
-
 	}
 
 	private static ArrayList<List> getSequenceCollection(File sequenceFile) {
@@ -63,20 +64,6 @@ public class Main {
 			sequenceCollection.add(sequence);
 		}
 
-		/*for (List<List> sequence:
-			sequenceCollection) {
-			System.out.println("Sequence:");
-			for (List<Integer> itemset:
-				sequence) {
-				System.out.println("\t Itemset: ");
-				for (Integer item:
-					itemset) {
-					System.out.print("\t\t"+item+" ");
-				}
-				System.out.println();
-			}
-
-		}*/
 		sc.close();
 		return sequenceCollection;
 	}
