@@ -1,4 +1,5 @@
 # [CS-583] Project 1: MS-GSP
+By Vijaya Nandhini Sivaswamy (vsivas2@uic.edu) & Unaiza Faiz (ufaiz2@uic.edu)
 
 ##Instructions to run the program:
 1. Download the zip file and extract the project
