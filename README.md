@@ -1,5 +1,9 @@
-# [CS-583] Project 1: MS-GSP
+## Implementing MS-GSP
 By Vijaya Nandhini Sivaswamy (vsivas2@uic.edu) & Unaiza Faiz (ufaiz2@uic.edu)
+
+This project executes of MS-GSP algorithm and is written in Java. MS-GSP can identify frequently occurring patterns.MS-GSP is an improvised version of the GSP algorithm and was introduced here.
+
+Bing Liu, "Web Data Mining - Exploring Hyperlinks, Contents, and Usage Data", P 43-49, Springer, 2011."
 
 ## Instructions to run the program:
 1. Download the zip file and extract the project
